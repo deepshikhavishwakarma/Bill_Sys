@@ -12,11 +12,8 @@ public class Controller {
 	
 	@Autowired
 	private Studentservice service;
-	
-	
-	
-	@GetMapping("/home")
+	@GetMapping("/billing")
 	public String home() {
-		return "home";
+		return "billing";
 	}
 }

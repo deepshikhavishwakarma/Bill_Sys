@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice Form</title>
+</head>
+<body>
+    <h1>Create Invoice</h1>
+    <form method="POST" action="/invoice/create">
+        <label>Customer Name:</label>
+        <input type="text" name="customerName" required><br><br>
+
+        <label>Payment Mode:</label>
+        <input type="text" name="paymentMode" required><br><br>
+
+        <label>Discount:</label>
+        <input type="number" name="discount" step="0.01" required><br><br>
+
+        <hr>
+
+        <div id="products-section">
+            <div class="product-row">
+                <label>Product:</label>
+                <select name="productsIds">
+                    <option value="">-- Select Product --</option>
+                    <option value="1">Pen</option>
+                    <option value="2">Notebook</option>
+                    <option value="3">Pencil</option>
+                    <option value="4">Marker</option>
+                    <!-- Add more hardcoded product IDs + names as per your DB -->
+                </select>
+
+                <label>Quantity:</label>
+                <input type="number" name="quantities" value="1" min="1">
+            </div>
+        </div>
+
+        <br>
+        <button type="button" onclick="addRow()">Add Another Product</button><br><br>
+        <button type="submit">Generate Invoice</button>
+    </form>
+
+    <script>
+        function addRow() {
+            const section = document.getElementById('products-section');
+            const row = section.querySelector('.product-row');
+            const clone = row.cloneNode(true);
+            section.appendChild(clone);
+        }
+    </script>
+</body>
+</html>
