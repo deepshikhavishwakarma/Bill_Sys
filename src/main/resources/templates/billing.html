@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Retail Shop Billing</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        .btn { padding: 8px 12px; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>Retail Shop Billing</h2>
+
+   <!--  <form id="invoiceForm" method="post" action="/invoice/create">
+        <label>Customer Name:</label>
+        <input type="text" name="customerName" required><br><br>
+
+        <label>Payment Mode:</label>
+        <select name="paymentMode">
+            <option value="Cash">Cash</option>
+            <option value="Online">Online</option>
+        </select><br><br>
+
+        <label>Discount (₹):</label>
+        <input type="number" name="discount" value="0"><br><br>
+
+        <table id="productTable">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Brand</th>
+                    <th>Category</th>
+                    <th>Price (₹)</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="productRows">
+                Dynamic rows will be added here
+            </tbody>
+        </table>
+
+        <button type="button" class="btn" onclick="addProductRow()">Add Product</button><br><br>
+         <button type="submit" class="btn">Submit</button><br><br>
+   
+        <button type="submit" class="btn">Generate Invoice</button>
+   
+    </form>
+
+    <script>
+        const categories = [
+            "Electronics", "Groceries", "Clothing", "Footwear", "Stationery",
+            "Home Decor", "Furniture", "Toys", "Books", "Beauty Products",
+            "Kitchenware", "Sports", "Automotive", "Jewelry", "Pet Supplies",
+            "Gardening", "Health", "Baby Products", "Bags & Luggage", "Mobile Accessories","Other"
+        ];
+
+        function addProductRow() {
+            const row = document.createElement('tr');
+
+            let categoryOptions = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+
+            row.innerHTML = `
+                <td><input type="text" name="products[][prod_Name]" required></td>
+                <td><input type="text" name="products[][prod_Brand]"></td>
+                <td>
+                    <select name="products[][category]">
+                        ${categoryOptions}
+                    </select>
+                </td>
+                <td><input type="number" name="products[][price]" required></td>
+                <td><input type="number" name="products[][quantity]" required></td>
+                <td><button type="button" onclick="this.parentElement.parentElement.remove()">Remove</button></td>
+            `;
+            document.getElementById('productRows').appendChild(row);
+        }
+    </script> -->
+    <form id="invoiceForm" method="post" action="/invoice/create" onsubmit="return prepareFormData()">
+    <label>Customer Name:</label>
+    <input type="text" name="customerName" required><br><br>
+
+    <label>Payment Mode:</label>
+    <select name="paymentMode">
+        <option value="Cash">Cash</option>
+        <option value="Online">Online</option>
+    </select><br><br>
+
+    <label>Discount (₹):</label>
+    <input type="number" name="discount" value="0"><br><br>
+
+    <table id="productTable">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Brand</th>
+                <th>Category</th>
+                <th>Price (₹)</th>
+                <th>Quantity</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="productRows">
+            <!-- Dynamic rows will be added here -->
+        </tbody>
+    </table>
+
+    <!-- Hidden fields to send product IDs and quantities -->
+    <input type="hidden" name="productsIds" id="productsIds">
+    <input type="hidden" name="quantities" id="quantities">
+
+    <button type="button" class="btn" onclick="addProductRow()">Add Product</button><br><br>
+    <button type="submit" class="btn">Generate Invoice</button>
+</form>
+
+<script>
+const categories = [
+    "Electronics", "Groceries", "Clothing", "Footwear", "Stationery",
+    "Home Decor", "Furniture", "Toys", "Books", "Beauty Products",
+    "Kitchenware", "Sports", "Automotive", "Jewelry", "Pet Supplies",
+    "Gardening", "Health", "Baby Products", "Bags & Luggage", "Mobile Accessories", "Other"
+];
+
+function addProductRow() {
+    const row = document.createElement('tr');
+
+    let categoryOptions = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+
+    row.innerHTML = `
+        <td><input type="number" class="product-id" placeholder="Product ID" required></td>
+        <td><input type="text" name="prod_Name" required></td>
+        <td><input type="text" name="prod_Brand"></td>
+        <td>
+            <select name="category">
+                ${categoryOptions}
+            </select>
+        </td>
+        <td><input type="number" name="price" required></td>
+        <td><input type="number" class="product-quantity" required></td>
+        <td><button type="button" onclick="this.parentElement.parentElement.remove()">Remove</button></td>
+    `;
+    document.getElementById('productRows').appendChild(row);
+}
+
+function prepareFormData() {
+    const rows = document.querySelectorAll("#productRows tr");
+    const productIds = [];
+    const quantities = [];
+
+    rows.forEach(row => {
+        const prodId = row.querySelector(".product-id").value;
+        const quantity = row.querySelector(".product-quantity").value;
+
+        if (prodId && quantity) {
+            productIds.push(prodId);
+            quantities.push(quantity);
+        }
+    });
+
+    document.getElementById("productsIds").value = productIds.join(",");
+    document.getElementById("quantities").value = quantities.join(",");
+
+    return true; // allow form submission
+}
+</script>
+    
+
+</body>
+</html>

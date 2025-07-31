@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.hcl.demo.entity.Invoice;
 import com.hcl.demo.entity.InvoiceItem;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -13,7 +15,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
-
+@Service
 public class InvoicePdfService {
   public byte[] generateInvoicePdf(Invoice invoice,List<InvoiceItem> invoiceItem)throws IOException{
 	 ByteArrayOutputStream baos = new ByteArrayOutputStream();
