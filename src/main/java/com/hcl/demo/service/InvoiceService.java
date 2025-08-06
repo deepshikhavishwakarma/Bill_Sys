@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,52 +28,58 @@ public class InvoiceService {
     @Autowired
     private InvoiceItemRepository invoiceItemRepository;
 
-    public Invoice createInvoice(String customerName, String paymentMode, double discount,
-                                  List<Long> productIds, List<Integer> quantities) {
-
-        if (productIds == null || productIds.isEmpty()) {
-            throw new RuntimeException("No products selected");
+    public Invoice createInvoice(String customerName, String paymentMode, BigDecimal discount,
+                                 List<Long> productIds, List<Integer> quantities) {
+        if (productIds == null || productIds.isEmpty() || productIds.size() != quantities.size()) {
+            throw new RuntimeException("Invalid product or quantity list provided.");
         }
+
+        Invoice invoice = new Invoice();
+        invoice.setCustomerName(customerName);
+        invoice.setPaymentMode(paymentMode);
+        invoice.setDiscount(discount);
+        invoice.setDate(LocalDateTime.now());
+        
+        // Save the invoice first to get the generated ID
+        Invoice savedInvoice = invoiceRepository.save(invoice);
 
         List<InvoiceItem> items = new ArrayList<>();
         BigDecimal totalAmount = BigDecimal.ZERO;
 
         for (int i = 0; i < productIds.size(); i++) {
             Long productId = productIds.get(i);
-            int quantity = quantities.get(i);
-
+            Integer quantity = quantities.get(i);
+            
+            if (quantity <= 0) {
+                continue; // Skip items with non-positive quantity
+            }
+            
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new RuntimeException("Invalid product ID: " + productId));
 
             InvoiceItem item = new InvoiceItem();
+            item.setInvoice(savedInvoice); // Link item to the new invoice
             item.setProduct(product);
             item.setItemQuantity(quantity);
-
-            BigDecimal price = product.getPrice().multiply(BigDecimal.valueOf(quantity));
-            item.setItemPrice(price);
-
-            totalAmount = totalAmount.add(price);
+            item.setItemPrice(product.getPrice());
+            
+            // Calculate item total and add to grand total
+            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(quantity));
+            totalAmount = totalAmount.add(itemTotal);
             items.add(item);
         }
 
-        BigDecimal discountAmount = BigDecimal.valueOf(discount);
-        totalAmount = totalAmount.subtract(discountAmount);
-
-        Invoice invoice = new Invoice();
-        invoice.setCustomerName(customerName);
-        invoice.setPaymentMode(paymentMode);
-        invoice.setDiscount(discountAmount);
-        invoice.setTotalAmount(totalAmount);
-        invoice.setDate(LocalDateTime.now());
-        invoice = invoiceRepository.save(invoice);
-
-        for (InvoiceItem item : items) {
-            item.setInvoice(invoice);
-            invoiceItemRepository.save(item);
+        if (items.isEmpty()) {
+            throw new RuntimeException("No valid products found. Invoice cannot be created.");
         }
 
-        invoice.setItems(items);
-        return invoice;
+        // Save all the items and link them to the invoice
+        List<InvoiceItem> savedItems = invoiceItemRepository.saveAll(items);
+
+        // Update the invoice with the final total amount and items list
+        invoice.setItems(savedItems);
+        invoice.setTotalAmount(totalAmount.subtract(discount));
+        return invoiceRepository.save(invoice);
     }
 
     public Invoice getInvoiceById(Long id) {

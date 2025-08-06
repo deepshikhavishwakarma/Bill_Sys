@@ -27,7 +27,6 @@
                     <option value="3">Pencil</option>
                     <option value="4">Marker</option>
                     </select>
-
                 <label>Quantity:</label>
                 <input type="number" name="quantities" value="1" min="1" required>
             </div>
@@ -42,11 +41,10 @@
         function addRow() {
             const section = document.getElementById('products-section');
             const newRow = document.querySelector('.product-row').cloneNode(true);
-            
-            // Clear the values for the new row to avoid submitting duplicates
-            newRow.querySelector('select[name="productsIds"]').value = "";
-            newRow.querySelector('input[name="quantities"]').value = "1";
-            
+            const select = newRow.querySelector('select[name="productsIds"]');
+            select.value = ""; // Clear selected option for the new row
+            const quantityInput = newRow.querySelector('input[name="quantities"]');
+            quantityInput.value = "1"; // Reset quantity to 1 for the new row
             section.appendChild(newRow);
         }
     </script>
